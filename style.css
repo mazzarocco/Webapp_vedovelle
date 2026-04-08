@@ -1,0 +1,408 @@
+/* =====================
+   STILI GLOBALI
+   ===================== */
+
+/* Variabili CSS: cambiare qui i colori aggiorna tutto il tema. */
+:root {
+    --primary-blue: #0d6efd;
+    --blue-light: #e7f1ff;
+    --gray-light: #f8f9fa;
+    --gray-text: #6c757d;
+    --shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Reset base per evitare differenze tra browser. */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    /* Font semplice e leggibile su desktop e mobile. */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.5;
+}
+
+/* =====================
+   HEADER E NAVBAR
+   ===================== */
+
+header {
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+}
+
+.navbar-brand {
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+/* =====================
+   MAIN CONTENT
+   ===================== */
+
+main {
+    min-height: calc(100vh - 200px);
+    padding: 2rem 0;
+}
+
+/* =====================
+   CARD STYLING
+   ===================== */
+
+.card {
+    /* Le card sono i "contenitori" principali della UI. */
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 2rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    border-radius: 0.5rem 0.5rem 0 0;
+    font-weight: 600;
+    border: none;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* =====================
+   FORM ELEMENTS
+   ===================== */
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.form-control,
+.form-select {
+    /* Stile pulito per input e select. */
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus,
+.form-select:focus {
+    /* Evidenzia il campo quando l'utente ci clicca sopra. */
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+}
+
+.input-group .btn {
+    padding: 0.625rem 1.25rem;
+    font-weight: 500;
+}
+
+/* =====================
+   BOTTONI
+   ===================== */
+
+.btn {
+    /* Bottoni più evidenti e facili da cliccare. */
+    font-weight: 500;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0b5ed7;
+    transform: translateY(-1px);
+    box-shadow: 0 0.25rem 0.5rem rgba(13, 110, 253, 0.25);
+}
+
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #157347;
+    transform: translateY(-1px);
+}
+
+.btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* =====================
+   BADGE
+   ===================== */
+
+.badge {
+    padding: 0.35rem 0.65rem;
+    font-weight: 500;
+}
+
+/* =====================
+   MAPPE LEAFLET
+   ===================== */
+
+.leaflet-map {
+    /* Altezza minima utile per leggere la mappa senza zoom continuo. */
+    width: 100%;
+    height: 450px;
+    border-radius: 0.375rem;
+    z-index: 1;
+}
+
+.leaflet-container {
+    background-color: #f0f0f0;
+}
+
+/* =====================
+   FEEDBACK MESSAGES
+   ===================== */
+
+.feedback {
+    /* Messaggi nascosti di default: app.js li mostra quando serve. */
+    display: none;
+}
+
+.feedback.show {
+    display: block;
+}
+
+.alert {
+    border-radius: 0.375rem;
+    padding: 0.875rem 1rem;
+    margin: 0;
+}
+
+.alert-success {
+    background-color: #d1e7dd;
+    border: 1px solid #badbcc;
+    color: #0f5132;
+}
+
+.alert-info {
+    background-color: #cfe2ff;
+    border: 1px solid #b6d4fe;
+    color: #055160;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffecb5;
+    color: #664d03;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border: 1px solid #f5c2c7;
+    color: #842029;
+}
+
+/* =====================
+   TABELLA STATISTICHE
+   ===================== */
+
+.table {
+    margin-bottom: 0;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.table thead th {
+    font-weight: 600;
+    border: none;
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.table tbody td {
+    padding: 0.875rem 1rem;
+    vertical-align: middle;
+    border-color: #e9ecef;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa;
+}
+
+.table tbody tr:hover {
+    background-color: var(--blue-light);
+}
+
+/* Evidenzia prima riga (top NIL) */
+.table tbody tr.top-row {
+    /* Prima riga = NIL con più fontanelle. */
+    background-color: #e7f1ff;
+    font-weight: 600;
+    border-left: 4px solid var(--primary-blue);
+}
+
+.table tbody tr.top-row:hover {
+    background-color: #d1e0ff;
+}
+
+.table .text-end {
+    text-align: right;
+}
+
+.table .text-center {
+    text-align: center;
+}
+
+/* =====================
+   RESPONSIVE
+   ===================== */
+
+@media (max-width: 768px) {
+    /* Layout tablet/smartphone: riduce spazi e dimensioni. */
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .card {
+        margin-bottom: 1.5rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    main {
+        padding: 1rem 0;
+    }
+
+    .leaflet-map {
+        height: 350px;
+    }
+
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+
+    .row.g-3 > [class*="col-"] {
+        margin-bottom: 0.5rem;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .table thead th {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .table tbody td {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Layout smartphone piccolo: input e bottoni in colonna. */
+    .navbar {
+        padding: 0.5rem;
+    }
+
+    .card-header {
+        padding: 1rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .leaflet-map {
+        height: 300px;
+    }
+
+    .btn-group .btn,
+    .input-group .btn {
+        width: 100%;
+    }
+
+    .input-group {
+        flex-direction: column;
+    }
+
+    .input-group .form-control,
+    .input-group .form-select,
+    .input-group .btn {
+        border-radius: 0.375rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .row.g-3,
+    .row.g-2 {
+        gap: 0.75rem !important;
+    }
+
+    .col-md-4,
+    .col-md-6 {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* =====================
+   SCROLLBAR STYLING
+   ===================== */
+
+/* Personalizzazione leggera della scrollbar (solo browser WebKit). */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* =====================
+   UTILITY CLASSES
+   ===================== */
+
+/* Utility locali: sovrascrivono in modo controllato alcune classi Bootstrap. */
+.text-muted {
+    color: var(--gray-text) !important;
+}
+
+.bg-light {
+    background-color: var(--gray-light) !important;
+}
+
+.shadow-sm {
+    box-shadow: var(--shadow) !important;
+}
