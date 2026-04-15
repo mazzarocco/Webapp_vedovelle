@@ -30,6 +30,10 @@ const AppState = {
     markers: [],
     // Layer GeoJSON della choropleth.
     choroplethLayer: null,
+    // Geometrie NIL indicizzate per nome (riuso veloce su mappa principale).
+    nilGeometryByName: new Map(),
+    // Layer del perimetro NIL mostrato in ricerca per zona.
+    selectedNilLayer: null,
     // Marker speciale della posizione utente.
     userMarker: null,
     // Cerchio che rappresenta il raggio della ricerca utente.
@@ -254,6 +258,12 @@ function clearMarkers() {
         AppState.mapInstance.removeLayer(AppState.userRadiusCircle);
         AppState.userRadiusCircle = null;
     }
+
+    if (AppState.selectedNilLayer) {
+        // Rimuove anche il perimetro NIL della ricerca precedente.
+        AppState.mapInstance.removeLayer(AppState.selectedNilLayer);
+        AppState.selectedNilLayer = null;
+    }
 }
 
 /**
@@ -264,15 +274,7 @@ function addMarkers(fontanelle) {
     fontanelle.forEach(fountain => {
         // Il backend passa coordinate in formato [lng, lat].
         const [lng, lat] = fountain.geometry.coordinates;
-        const marker = L.circleMarker([lat, lng], {
-            // Marker più visibile: colore forte + bordo scuro + dimensione maggiore.
-            radius: 8,
-            fillColor: '#ff2d55',
-            color: '#3d0012',
-            weight: 3,
-            opacity: 1,
-            fillOpacity: 0.95
-        });
+        const marker = L.marker([lat, lng]);
 
         // Popup con le info principali della fontanella.
         marker.bindPopup(`
@@ -286,6 +288,61 @@ function addMarkers(fontanelle) {
         marker.addTo(AppState.mapInstance);
         AppState.markers.push(marker);
     });
+}
+
+/**
+ * Disegna il perimetro di uno o più NIL sulla mappa principale.
+ */
+function showNilPerimeter(nilNames) {
+    if (AppState.selectedNilLayer) {
+        AppState.mapInstance.removeLayer(AppState.selectedNilLayer);
+        AppState.selectedNilLayer = null;
+    }
+
+    const features = nilNames
+        .map(name => {
+            const normalizedName = String(name || '').toUpperCase();
+            const geometry = AppState.nilGeometryByName.get(normalizedName);
+
+            if (!geometry) return null;
+
+            return {
+                type: 'Feature',
+                properties: { name: normalizedName },
+                geometry
+            };
+        })
+        .filter(Boolean);
+
+    if (features.length === 0) return;
+
+    AppState.selectedNilLayer = L.geoJSON({ type: 'FeatureCollection', features }, {
+        style: {
+            color: '#ff7a00',
+            weight: 3,
+            opacity: 0.95,
+            fillOpacity: 0.05,
+            dashArray: '6, 4'
+        },
+        onEachFeature: (feature, layer) => {
+            layer.bindPopup(`<strong>Perimetro NIL:</strong> ${feature.properties.name}`);
+        }
+    }).addTo(AppState.mapInstance);
+}
+
+/**
+ * Restituisce i NIL che matchano il testo inserito (supporta match parziale).
+ */
+function getNilNamesFromText(nilValue) {
+    const query = String(nilValue || '').trim().toUpperCase();
+    if (!query) return [];
+
+    const names = AppState.nilList
+        .map(nil => String(nil.name || nil.NIL || '').toUpperCase())
+        .filter(Boolean)
+        .filter(name => name.includes(query));
+
+    return [...new Set(names)];
 }
 
 /**
@@ -315,12 +372,12 @@ function showUserMarker(lat, lng, radius = RADIUS) {
     }
 
     AppState.userMarker = L.circleMarker([lat, lng], {
-        radius: 6,
-        fillColor: '#47ce67',
-        color: '#d6ffd0',
-        weight: 2,
+        radius: 7,
+        fillColor: '#0059ff',
+        color: '#000000',
+        weight: 1,
         opacity: 1,
-        fillOpacity: 0.8
+        fillOpacity: 1
     });
 
     AppState.userMarker.bindPopup('La tua posizione').openPopup();
@@ -519,9 +576,12 @@ async function handleSearchByText() {
         if (results.length === 0) {
             showMessage('feedback-nil', `Nessuna fontanella trovata per "${nilValue}"`, 'warning');
             clearMarkers();
+            showNilPerimeter(getNilNamesFromText(nilValue));
             updateResultCount(0);
         } else {
             clearMarkers();
+            const nilNames = [...new Set(results.map(r => String(r.NIL || '').toUpperCase()).filter(Boolean))];
+            showNilPerimeter(nilNames);
             addMarkers(results);
             zoomToMarkers();
             updateResultCount(results.length);
@@ -561,9 +621,11 @@ async function handleSearchBySelect() {
         if (results.length === 0) {
             showMessage('feedback-nil', `Nessuna fontanella trovata per ${nilValue}`, 'warning');
             clearMarkers();
+            showNilPerimeter([String(nilValue).toUpperCase()]);
             updateResultCount(0);
         } else {
             clearMarkers();
+            showNilPerimeter([String(nilValue).toUpperCase()]);
             addMarkers(results);
             zoomToMarkers();
             updateResultCount(results.length);
@@ -761,6 +823,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 4) Carica dati e disegna choropleth.
     const choroplethData = await getChoroplethData();
+    AppState.nilGeometryByName = new Map(
+        choroplethData
+            .filter(item => item.geometry)
+            .map(item => [String(item.name || '').toUpperCase(), item.geometry])
+    );
     renderChoropleth(choroplethData);
 
     // 5) Collega i bottoni ai rispettivi handler.
