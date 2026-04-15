@@ -9,6 +9,7 @@
     --gray-light: #f8f9fa;
     --gray-text: #6c757d;
     --shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --header-height: 72px;
 }
 
 /* Reset base per evitare differenze tra browser. */
@@ -28,6 +29,8 @@ body {
     background-color: #f5f5f5;
     color: #333;
     line-height: 1.5;
+    /* Compensa l'header fisso per non coprire il contenuto. */
+    padding-top: var(--header-height);
 }
 
 /* =====================
@@ -35,8 +38,19 @@ body {
    ===================== */
 
 header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1030;
     box-shadow: var(--shadow);
-    margin-bottom: 2rem;
+    margin-bottom: 0;
+}
+
+/* Evita che i link ancora finiscano sotto la navbar sticky. */
+section[id] {
+    scroll-margin-top: calc(var(--header-height) + 18px);
 }
 
 .navbar-brand {
@@ -323,6 +337,10 @@ main {
 }
 
 @media (max-width: 576px) {
+    :root {
+        --header-height: 64px;
+    }
+
     /* Layout smartphone piccolo: input e bottoni in colonna. */
     .navbar {
         padding: 0.5rem;

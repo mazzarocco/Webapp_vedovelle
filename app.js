@@ -2,10 +2,6 @@
 // CONFIGURAZIONE
 // =====================
 
-// Se apri la pagina come file locale (file://), il browser non passa dal backend Flask.
-const IS_FILE_PROTOCOL = window.location.protocol === 'file:';
-// In file locale usiamo dati mock, altrimenti usiamo API reali.
-const USE_MOCK = IS_FILE_PROTOCOL;
 // BASE_URL vuoto = stessa origine della pagina (utile in Codespaces/porte forwardate).
 const BASE_URL = window.location.protocol === 'file:' ? 'http://127.0.0.1:5000' : '';
 // Raggio di default per le ricerche "vicino a un punto".
@@ -16,132 +12,11 @@ const GEO_QUERY_METHOD = 'near';
 const MILANO_CENTER = [45.4642, 9.1900]; // [lat, lng]
 
 // =====================
-// DATI MOCK
-// =====================
-
-// NIL reali di Milano
-const MOCK_NIL = [
-    { id: 1, idnil: 1, name: 'DUOMO' },
-    { id: 2, idnil: 2, name: 'NAVIGLI' },
-    { id: 3, idnil: 3, name: 'BRERA' },
-    { id: 4, idnil: 4, name: 'ISOLA' },
-    { id: 5, idnil: 5, name: 'MONFORTE' },
-    { id: 6, idnil: 6, name: 'GRECO' },
-    { id: 7, idnil: 7, name: 'STAMBERIA' },
-    { id: 8, idnil: 8, name: 'GARIBALDI' },
-    { id: 9, idnil: 9, name: 'SEMPIONE' },
-    { id: 10, idnil: 10, name: 'MAGENTA' },
-    { id: 11, idnil: 11, name: 'PAGANO' },
-    { id: 12, idnil: 12, name: 'LOTTO' }
-];
-
-// Fontanelle con coordinate reali a Milano
-const MOCK_FONTANELLE = [
-    // DUOMO
-    { objectID: 1, NIL: 'DUOMO', IDNIL: 1, geometry: { coordinates: [9.1863, 45.4642] } },
-    { objectID: 2, NIL: 'DUOMO', IDNIL: 1, geometry: { coordinates: [9.1875, 45.4635] } },
-    { objectID: 3, NIL: 'DUOMO', IDNIL: 1, geometry: { coordinates: [9.1880, 45.4650] } },
-    { objectID: 4, NIL: 'DUOMO', IDNIL: 1, geometry: { coordinates: [9.1855, 45.4658] } },
-    
-    // NAVIGLI
-    { objectID: 5, NIL: 'NAVIGLI', IDNIL: 2, geometry: { coordinates: [9.1750, 45.4550] } },
-    { objectID: 6, NIL: 'NAVIGLI', IDNIL: 2, geometry: { coordinates: [9.1770, 45.4560] } },
-    { objectID: 7, NIL: 'NAVIGLI', IDNIL: 2, geometry: { coordinates: [9.1745, 45.4575] } },
-    { objectID: 8, NIL: 'NAVIGLI', IDNIL: 2, geometry: { coordinates: [9.1755, 45.4590] } },
-    
-    // BRERA
-    { objectID: 9, NIL: 'BRERA', IDNIL: 3, geometry: { coordinates: [9.1910, 45.4720] } },
-    { objectID: 10, NIL: 'BRERA', IDNIL: 3, geometry: { coordinates: [9.1920, 45.4730] } },
-    { objectID: 11, NIL: 'BRERA', IDNIL: 3, geometry: { coordinates: [9.1900, 45.4710] } },
-    
-    // ISOLA
-    { objectID: 12, NIL: 'ISOLA', IDNIL: 4, geometry: { coordinates: [9.2050, 45.4800] } },
-    { objectID: 13, NIL: 'ISOLA', IDNIL: 4, geometry: { coordinates: [9.2040, 45.4810] } },
-    { objectID: 14, NIL: 'ISOLA', IDNIL: 4, geometry: { coordinates: [9.2060, 45.4820] } },
-    
-    // MONFORTE
-    { objectID: 15, NIL: 'MONFORTE', IDNIL: 5, geometry: { coordinates: [9.1820, 45.4700] } },
-    
-    // GRECO
-    { objectID: 16, NIL: 'GRECO', IDNIL: 6, geometry: { coordinates: [9.2250, 45.4650] } },
-    
-    // STAMBERIA
-    { objectID: 17, NIL: 'STAMBERIA', IDNIL: 7, geometry: { coordinates: [9.1650, 45.4480] } },
-    
-    // GARIBALDI
-    { objectID: 18, NIL: 'GARIBALDI', IDNIL: 8, geometry: { coordinates: [9.1920, 45.4900] } },
-    { objectID: 19, NIL: 'GARIBALDI', IDNIL: 8, geometry: { coordinates: [9.1935, 45.4910] } },
-    
-    // SEMPIONE
-    { objectID: 20, NIL: 'SEMPIONE', IDNIL: 9, geometry: { coordinates: [9.1650, 45.4800] } },
-];
-
-// Statistiche (ordinate per numero di fontanelle decrescente)
-const MOCK_STATS = [
-    { NIL: 'DUOMO', IDNIL: 1, count: 4 },
-    { NIL: 'NAVIGLI', IDNIL: 2, count: 4 },
-    { NIL: 'GARIBALDI', IDNIL: 8, count: 2 },
-    { NIL: 'BRERA', IDNIL: 3, count: 3 },
-    { NIL: 'ISOLA', IDNIL: 4, count: 3 },
-    { NIL: 'MONFORTE', IDNIL: 5, count: 1 },
-    { NIL: 'GRECO', IDNIL: 6, count: 1 },
-    { NIL: 'STAMBERIA', IDNIL: 7, count: 1 },
-    { NIL: 'SEMPIONE', IDNIL: 9, count: 1 },
-    { NIL: 'MAGENTA', IDNIL: 10, count: 0 },
-    { NIL: 'PAGANO', IDNIL: 11, count: 0 },
-    { NIL: 'LOTTO', IDNIL: 12, count: 0 },
-];
-
-// Poligoni semplificati (rettangoli approssimati) per la choropleth
-const MOCK_CHOROPLETH = [
-    {
-        name: 'DUOMO',
-        count: 4,
-        geometry: {
-            type: 'Polygon',
-            coordinates: [[[9.1800, 45.4600], [9.1900, 45.4600], [9.1900, 45.4700], [9.1800, 45.4700], [9.1800, 45.4600]]]
-        }
-    },
-    {
-        name: 'NAVIGLI',
-        count: 4,
-        geometry: {
-            type: 'Polygon',
-            coordinates: [[[9.1700, 45.4500], [9.1800, 45.4500], [9.1800, 45.4600], [9.1700, 45.4600], [9.1700, 45.4500]]]
-        }
-    },
-    {
-        name: 'BRERA',
-        count: 3,
-        geometry: {
-            type: 'Polygon',
-            coordinates: [[[9.1850, 45.4700], [9.1950, 45.4700], [9.1950, 45.4800], [9.1850, 45.4800], [9.1850, 45.4700]]]
-        }
-    },
-    {
-        name: 'ISOLA',
-        count: 3,
-        geometry: {
-            type: 'Polygon',
-            coordinates: [[[9.1950, 45.4750], [9.2150, 45.4750], [9.2150, 45.4850], [9.1950, 45.4850], [9.1950, 45.4750]]]
-        }
-    },
-    {
-        name: 'SEMPIONE',
-        count: 1,
-        geometry: {
-            type: 'Polygon',
-            coordinates: [[[9.1600, 45.4750], [9.1700, 45.4750], [9.1700, 45.4850], [9.1600, 45.4850], [9.1600, 45.4750]]]
-        }
-    }
-];
-
-// =====================
 // STATO APPLICAZIONE
 // =====================
 
 const AppState = {
-    // Lista NIL caricata dal backend o dai dati mock.
+    // Lista NIL caricata dal backend.
     nilList: [],
     // Ultimo risultato mostrato in mappa.
     results: [],
@@ -156,8 +31,13 @@ const AppState = {
     // Layer GeoJSON della choropleth.
     choroplethLayer: null,
     // Marker speciale della posizione utente.
-    userMarker: null
+    userMarker: null,
+    // Cerchio che rappresenta il raggio della ricerca utente.
+    userRadiusCircle: null
 };
+
+// Evita di mostrare ripetutamente lo stesso alert quando il backend non risponde.
+let backendOfflineShown = false;
 
 // =====================
 // FUNZIONI API
@@ -167,8 +47,16 @@ const AppState = {
  * Fetch JSON con controllo esplicito dello stato HTTP.
  */
 async function fetchJson(path) {
-    // Esegue la chiamata HTTP all'endpoint richiesto.
-    const response = await fetch(`${BASE_URL}${path}`);
+    let response;
+    try {
+        // Esegue la chiamata HTTP all'endpoint richiesto.
+        response = await fetch(`${BASE_URL}${path}`);
+    } catch (error) {
+        const offlineError = new Error(`BACKEND_UNREACHABLE:${path}`);
+        offlineError.cause = error;
+        throw offlineError;
+    }
+
     if (!response.ok) {
         // Se il server risponde con errore (4xx/5xx), generiamo un errore leggibile.
         throw new Error(`HTTP ${response.status} su ${path}`);
@@ -177,21 +65,35 @@ async function fetchJson(path) {
     return response.json();
 }
 
+function showBackendUnavailableMessage() {
+    if (backendOfflineShown) return;
+
+    const backendUrl = BASE_URL || window.location.origin;
+    const message = `Backend non raggiungibile. Avvia Flask e verifica l'URL API (${backendUrl}).`;
+
+    showMessage('feedback-nil', message, 'danger');
+    showMessage('feedback-distance', message, 'danger');
+    backendOfflineShown = true;
+}
+
+//Gestisce in modo uniforme gli errori API.
+function handleApiError(context, error) {
+    if (String(error?.message || '').startsWith('BACKEND_UNREACHABLE:')) {
+        showBackendUnavailableMessage();
+    }
+
+    console.error(`Errore API (${context}):`, error);
+}
+
 /**
  * Ottiene la lista di tutti i NIL
  */
 async function getNilList() {
-    if (USE_MOCK) {
-        // Simula una chiamata API con piccolo ritardo.
-        return new Promise(resolve => {
-            setTimeout(() => resolve(MOCK_NIL), 100);
-        });
-    }
     try {
         // Chiama il backend reale.
         return await fetchJson('/api/nil');
     } catch (error) {
-        console.error('Errore nel recupero lista NIL:', error);
+        handleApiError('recupero lista NIL', error);
         return [];
     }
 }
@@ -200,20 +102,11 @@ async function getNilList() {
  * Ottiene fontanelle per un NIL specifico
  */
 async function getFountainsByNil(nilValue) {
-    if (USE_MOCK) {
-        return new Promise(resolve => {
-            // Match parziale (case-insensitive) sul nome NIL.
-            const filtered = MOCK_FONTANELLE.filter(f =>
-                f.NIL.toUpperCase().includes(nilValue.toUpperCase())
-            );
-            setTimeout(() => resolve(filtered), 100);
-        });
-    }
     try {
         // Passa NIL in query string.
         return await fetchJson(`/api/fontanelle/by-nil?nil=${encodeURIComponent(nilValue)}`);
     } catch (error) {
-        console.error('Errore nel recupero fontanelle:', error);
+        handleApiError('recupero fontanelle per NIL', error);
         return [];
     }
 }
@@ -222,23 +115,13 @@ async function getFountainsByNil(nilValue) {
  * Ottiene fontanelle entro un raggio da coordinate
  */
 async function getFountainsNearPoint(lat, lng, radius = RADIUS) {
-    if (USE_MOCK) {
-        return new Promise(resolve => {
-            // Filtra solo i punti entro il raggio richiesto.
-            const filtered = MOCK_FONTANELLE.filter(f => {
-                const distance = calculateDistance(lat, lng, f.geometry.coordinates[1], f.geometry.coordinates[0]);
-                return distance <= radius;
-            });
-            setTimeout(() => resolve(filtered), 100);
-        });
-    }
     try {
         // Endpoint con parametri lat/lng/r.
         return await fetchJson(
             `/api/fontanelle/near?lat=${lat}&lng=${lng}&r=${radius}&method=${encodeURIComponent(GEO_QUERY_METHOD)}`
         );
     } catch (error) {
-        console.error('Errore nel recupero fontanelle prossime:', error);
+        handleApiError('recupero fontanelle prossime', error);
         return [];
     }
 }
@@ -247,17 +130,6 @@ async function getFountainsNearPoint(lat, lng, radius = RADIUS) {
  * Ottiene statistiche fontanelle per NIL
  */
 async function getStats() {
-    if (USE_MOCK) {
-        return new Promise(resolve => {
-            // Totale usato per calcolare la percentuale per ogni riga.
-            const total = MOCK_STATS.reduce((sum, s) => sum + s.count, 0);
-            const withPercentage = MOCK_STATS.map(s => ({
-                ...s,
-                percentage: total > 0 ? ((s.count / total) * 100).toFixed(1) : '0'
-            }));
-            setTimeout(() => resolve(withPercentage), 100);
-        });
-    }
     try {
         const data = await fetchJson('/api/stats/fontanelle-per-nil');
         // Calcola il totale per trasformare i count in percentuali.
@@ -268,7 +140,7 @@ async function getStats() {
             percentage: total > 0 ? ((Number(s.count || 0) / total) * 100).toFixed(1) : '0'
         }));
     } catch (error) {
-        console.error('Errore nel recupero statistiche:', error);
+        handleApiError('recupero statistiche', error);
         return [];
     }
 }
@@ -277,11 +149,6 @@ async function getStats() {
  * Ottiene dati per la mappa choropleth
  */
 async function getChoroplethData() {
-    if (USE_MOCK) {
-        return new Promise(resolve => {
-            setTimeout(() => resolve(MOCK_CHOROPLETH), 100);
-        });
-    }
     try {
         const data = await fetchJson('/api/choropleth');
 
@@ -295,7 +162,7 @@ async function getChoroplethData() {
                 geometry: item.geometry
             }));
     } catch (error) {
-        console.error('Errore nel recupero dati choropleth:', error);
+        handleApiError('recupero dati choropleth', error);
         return [];
     }
 }
@@ -303,22 +170,6 @@ async function getChoroplethData() {
 // =====================
 // FUNZIONI UTILITÀ
 // =====================
-
-/**
- * Calcola la distanza tra due coordinate (formula Haversine)
- */
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    // Formula Haversine: distanza tra due coordinate geografiche.
-    const R = 6371000; // Raggio della Terra in metri
-    const φ1 = (lat1 * Math.PI) / 180;
-    const φ2 = (lat2 * Math.PI) / 180;
-    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
-    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
-    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-        Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-}
 
 /**
  * Valida se una stringa è un numero valido
@@ -397,15 +248,19 @@ function clearMarkers() {
         AppState.mapInstance.removeLayer(AppState.userMarker);
         AppState.userMarker = null;
     }
+
+    if (AppState.userRadiusCircle) {
+        // Rimuove il cerchio del raggio precedente, se presente.
+        AppState.mapInstance.removeLayer(AppState.userRadiusCircle);
+        AppState.userRadiusCircle = null;
+    }
 }
 
 /**
  * Aggiunge marker per le fontanelle sulla mappa
  */
 function addMarkers(fontanelle) {
-    // Prima puliamo i marker vecchi per evitare sovrapposizioni.
-    clearMarkers();
-
+    // La pulizia marker viene fatta dal chiamante per non cancellare marker/cerchio utente.
     fontanelle.forEach(fountain => {
         // Il backend passa coordinate in formato [lng, lat].
         const [lng, lat] = fountain.geometry.coordinates;
@@ -448,16 +303,21 @@ function zoomToMarkers() {
 /**
  * Aggiunge un marker speciale per la posizione utente
  */
-function showUserMarker(lat, lng) {
+function showUserMarker(lat, lng, radius = RADIUS) {
     if (AppState.userMarker) {
         // Evita di avere più marker utente contemporaneamente.
         AppState.mapInstance.removeLayer(AppState.userMarker);
     }
 
+    if (AppState.userRadiusCircle) {
+        // Aggiorna sempre il cerchio rimuovendo prima quello precedente.
+        AppState.mapInstance.removeLayer(AppState.userRadiusCircle);
+    }
+
     AppState.userMarker = L.circleMarker([lat, lng], {
-        radius: 8,
-        fillColor: '#28a745',
-        color: '#fff',
+        radius: 6,
+        fillColor: '#47ce67',
+        color: '#d6ffd0',
         weight: 2,
         opacity: 1,
         fillOpacity: 0.8
@@ -467,8 +327,8 @@ function showUserMarker(lat, lng) {
     AppState.userMarker.addTo(AppState.mapInstance);
 
     // Aggiungi anche un cerchio di 500m
-    L.circle([lat, lng], {
-        radius: RADIUS,
+    AppState.userRadiusCircle = L.circle([lat, lng], {
+        radius: radius,
         color: '#28a745',
         fill: false,
         weight: 2,
@@ -661,6 +521,7 @@ async function handleSearchByText() {
             clearMarkers();
             updateResultCount(0);
         } else {
+            clearMarkers();
             addMarkers(results);
             zoomToMarkers();
             updateResultCount(results.length);
@@ -702,6 +563,7 @@ async function handleSearchBySelect() {
             clearMarkers();
             updateResultCount(0);
         } else {
+            clearMarkers();
             addMarkers(results);
             zoomToMarkers();
             updateResultCount(results.length);
@@ -759,13 +621,15 @@ async function handleSearchNearPoint() {
         // Cerca fontanelle entro il raggio dalla coppia lat/lng inserita.
         const results = await getFountainsNearPoint(latNum, lngNum, radiusNum);
 
+        // Mostra sempre posizione e raggio della ricerca effettuata.
+        clearMarkers();
+        showUserMarker(latNum, lngNum, radiusNum);
+
         if (results.length === 0) {
             showMessage('feedback-distance', 'Nessuna fontanella trovata entro il raggio specificato', 'warning');
-            clearMarkers();
             updateResultCount(0);
+            AppState.mapInstance.setView([latNum, lngNum], 15);
         } else {
-            clearMarkers();
-            showUserMarker(latNum, lngNum);
             addMarkers(results);
             zoomToMarkers();
             updateResultCount(results.length);
@@ -809,13 +673,15 @@ async function handleUseMyPosition() {
             try {
                 const results = await getFountainsNearPoint(lat, lng, radiusNum);
 
+                // Mostra sempre posizione e raggio della ricerca effettuata.
+                clearMarkers();
+                showUserMarker(lat, lng, radiusNum);
+
                 if (results.length === 0) {
                     showMessage('feedback-distance', 'Nessuna fontanella trovata entro il raggio', 'warning');
-                    clearMarkers();
                     updateResultCount(0);
+                    AppState.mapInstance.setView([lat, lng], 15);
                 } else {
-                    clearMarkers();
-                    showUserMarker(lat, lng);
                     addMarkers(results);
                     zoomToMarkers();
                     updateResultCount(results.length);
@@ -872,12 +738,12 @@ function handleReset() {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('Inizializzazione app...');
 
-    if (IS_FILE_PROTOCOL) {
-        // Messaggio informativo quando la pagina è aperta come file locale.
+    if (window.location.protocol === 'file:') {
+        // Con apertura locale la web app non può usare le API relative.
         showMessage(
             'feedback-nil',
-            'Pagina aperta da file locale: uso dati mock. Per usare MongoDB apri la web app dalla porta del backend Flask.',
-            'info'
+            'Pagina aperta come file locale: questa versione usa solo API reali. Apri la web app dalla porta del backend Flask.',
+            'warning'
         );
     }
 
